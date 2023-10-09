@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Customer Manage</title>
+    <meta content="width=device-width initial-scale=1" name="viewport">
+    <link href="../assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../assets/css/styles.css" rel="stylesheet">
+    <link crossorigin="anonymous" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css"
+          integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" rel="stylesheet">
+    <style>
+        ul > li {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<!--header-->
+<header class="jumbotron bg-primary text-white p-3">
+    <h1 class="position-absolute" id="nav"></h1>
+    <ul class="list-group list-group-horizontal text-danger justify-content-end font-weight-bold">
+        <li class="list-group-item bg-white" id="lnkHome"><a href="../index.html">Home</a></li>
+        <li class="list-group-item bg-danger text-white" id="lnkCustomer"><a class="text-white"
+                                                                             href="customer.html">Customer</a>
+        </li>
+        <li class="list-group-item bg-white" id="lnkItem"><a href="item.html">Item</a></li>
+        <li class="list-group-item bg-white" id="lnkOrders"><a href="purchase-order.html">Orders</a></li>
+    </ul>
+</header>
+
+<!--customer content-->
+<main class="container-fluid" id="customerContent">
+    <section class="row">
+        <div class="col-12 col-lg-4">
+            <h1>Customer Registration</h1>
+            <form id="customerForm">
+                <div class="form-group">
+                    <label for="txtCustomerID">Customer ID</label>
+                    <input name="cusID" class="form-control" id="txtCustomerID" type="text">
+                    <span class="control-error" id="lblcusid"></span>
+                </div>
+                <div class="form-group">
+                    <label for="txtCustomerName">Customer Name</label>
+                    <input name="cusName" class="form-control" id="txtCustomerName" type="text">
+                    <span class="control-error" id="lblcusname"></span>
+                </div>
+                <div class="form-group">
+                    <label for="txtCustomerAddress">Customer Address</label>
+                    <input name="cusAddress" class="form-control" id="txtCustomerAddress" type="text">
+                    <span class="control-error" id="lblcusaddress"></span>
+                </div>
+                <div class="form-group">
+                    <label for="txtCustomerSalary">Customer Salary</label>
+                    <input name="cusSalary" class="form-control" id="txtCustomerSalary" type="text">
+                    <span class="control-error" id="lblcussalary"></span>
+                </div>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary" id="btnCustomer">
+                        Save Customer
+                    </button>
+                    <button type="button" class="btn btn-danger"
+                            id="btnCusDelete">Remove
+                    </button>
+                    <button type="button" class="btn btn-warning"
+                            id="btnUpdate">Update
+                    </button>
+                    <button type="button" class="btn btn-success" id="btnGetAll">Get All</button>
+                    <button type="button" class="btn btn-danger" id="btn-clear1">Clear All</button>
+                </div>
+            </form>
+        </div>
+        <div class="col-12 col-lg-8 mt-3">
+            <table class="table table-bordered table-hover">
+                <thead class="bg-danger text-white">
+                <tr>
+                    <th>Customer ID</th>
+                    <th>Customer Name</th>
+                    <th>Customer Address</th>
+                    <th>Customer Salary</th>
+                </tr>
+                </thead>
+                <tbody id="tblCustomer">
+
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+
+<script src="../assets/js/jquery-3.6.1.min.js"></script>
+<script src="../assets/js/bootstrap.min.js"></script>
+
+
+<!--bind a event on btn GetAll btn-->
+<script>
+    const BASE_URL = "http://localhost:8080/Spring_Data_JPA_Back_End_war/pages/";
+
+    getAllCustomers();
+
+    //get all customer function
+    $("#btnGetAll").click(function () {
+        getAllCustomers();
+    });
+
+    // get all customers
+    function getAllCustomers() {
+        $("#tblCustomer").empty();
+        <!--send ajax request to the customer servlet using jQuery-->
+        $.ajax({
+            url: BASE_URL + 'customer',
+            dataType: "json",
+            success: function (response) {
+                let customers = response.data;
+                for (let i in customers) {
+                    let cus = customers[i];
+                    let id = cus.cusID;
+                    let name = cus.cusName;
+                    let address = cus.cusAddress;
+                    let salary = cus.cusSalary;
+                    let row = `<tr><td>${id}</td><td>${name}</td><td>${address}</td><td>${salary}</td></tr>`;
+                    $("#tblCustomer").append(row);
+                }
+                bindTrEvents();
+            },
+            error: function (error) {
+                alert(error.responseJSON.message);
+            }
+        });
+    }
+
+    // save customer function
+    $("#btnCustomer").click(function () {
+        let formData = $("#customerForm").serialize();
+        $.ajax({
+            url: BASE_URL + "customer",
+            method: "post",
+            data: formData,
+            success: function (res) {
+                alert(res.message);
+                getAllCustomers();
+            },
+            error: function (error) {
+                alert(error.responseJSON.message);
+            }
+        });
+    });
+
+    //delete customer function
+    $("#btnCusDelete").click(function () {
+        let id = $("#txtCustomerID").val();
+        $.ajax({
+            url: BASE_URL + 'customer?cusID=' + id,
+            method: 'delete',
+            success: function (resp) {
+                alert(resp.message);
+                getAllCustomers();
+            },
+            error: function (error) {
+                alert(error.responseJSON.message);
+            }
+        });
+    });
+
+    //update customer function
+    $("#btnUpdate").click(function () {
+        let id = $("#txtCustomerID").val();
+        let name = $("#txtCustomerName").val();
+        let address = $("#txtCustomerAddress").val();
+        let salary = $("#txtCustomerSalary").val();
+
+        //json object
+        let object = {
+            "cusID": id,
+            "cusName": name,
+            "cusAddress": address,
+            "cusSalary": salary
+        }
+
+        $.ajax({
+            url: BASE_URL + 'customer',
+            method: 'put',
+            contentType: "application/json",
+            data: JSON.stringify(object),
+            success: function (resp) {
+                alert(resp.message);
+                getAllCustomers();
+            },
+            error: function (error) {
+                alert(error.responseJSON.message);
+            }
+        });
+    });
+
+    //bind tr events for getting back data of the rows to text fields
+    function bindTrEvents() {
+        $('#tblCustomer>tr').click(function () {
+            //get the selected rows data
+            let id = $(this).children().eq(0).text();
+            let name = $(this).children().eq(1).text();
+            let address = $(this).children().eq(2).text();
+            let salary = $(this).children().eq(3).text();
+
+            //set the selected rows data to the input fields
+            $("#txtCustomerID").val(id);
+            $("#txtCustomerName").val(name);
+            $("#txtCustomerAddress").val(address);
+            $("#txtCustomerSalary").val(salary);
+        })
+    }
+</script>
+
+</body>
+</html>

@@ -14,10 +14,10 @@ public class PurchaseOrderController {
         System.out.println("PurchaseOrderController : Instantiated..!");
     }
 
-    @PostMapping
-    public String test(Orders orders, OrderDetails orderDetails) {
-        System.out.println(orders.getOid());
-        System.out.println(orderDetails.getOid());
-        return "hi";
-    }
+//    @PostMapping
+//    public String test(Orders orders, OrderDetails orderDetails) {
+//        System.out.println(orders.getOid());
+//        System.out.println(orderDetails.getOid());
+//        return "hi";
+//    }
 }
